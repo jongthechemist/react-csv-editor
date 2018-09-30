@@ -1,7 +1,7 @@
 {
   "name": "react-csv-editor",
   "version": "0.1.0",
-  "private": true,
+  "private": false,
   "dependencies": {
     "csvjson": "^5.1.0",
     "lodash": "^4.17.11",

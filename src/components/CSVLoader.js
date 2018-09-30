@@ -12,6 +12,7 @@ class CSVLoader extends React.Component {
     const { onFileLoaded } = this.props;
 
     var input = event.target;
+    if(!input.files[0]) return;
 
     var reader = new FileReader();
     reader.onload = function(){

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import CSVEditor, { CSVLoader } from '../components';
+import CSVEditor, { CSVLoader } from '../index.deploy';
 // import './App.css';
 
 class App extends Component {
