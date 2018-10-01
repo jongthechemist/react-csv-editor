@@ -1,1 +1,1 @@
-require('./demo')
+module.exports = require('./components')
