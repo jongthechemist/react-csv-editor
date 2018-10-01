@@ -1,16 +1,16 @@
-const validateData = (data, validate) => {
+export const validateData = (data, validate) => {
   if(!validate) return data
-  return Object.assign({}, data, { csvInvalidHeaders: Object.keys(data).filter((attr)=>!validate(data, attr)) })
+  return Object.assign({}, data, { csvInvalidHeaders: Object.keys(data).filter((attr)=>!validate(data, attr)), payload: data })
 }
 
-const isValid = (data, header) => {
+export const isValid = (data, header) => {
   if(!header)
     return data.csvInvalidHeaders.length === 0
   else
     return data.csvInvalidHeaders.findIndex(h=>h===header) < 0
 }
 
-const getInvalidData = (dataArray) => {
+export const getInvalidData = (dataArray) => {
   let invalids = dataArray.filter((data)=>!isValid(data))
   if(invalids.length > 0) {
     return {
@@ -26,8 +26,6 @@ const getInvalidData = (dataArray) => {
   }
 }
 
-export {
-  validateData,
-  isValid,
-  getInvalidData
+export const getPayload = (dataArray) => {
+  return dataArray.map((data)=>data.payload || data)
 }

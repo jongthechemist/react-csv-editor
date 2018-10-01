@@ -3,6 +3,10 @@ import CSVEditor, { CSVLoader } from '../index.deploy';
 import TEST_CSV from './MOCK_DATA_2.csv';
 import './App.css';
 
+const VALIDATE_SHIPPING = {
+  "CargoNo" : (data) => !isNaN(data["CargoNo"])
+}
+
 class App extends Component {
 
   constructor(props) {
@@ -20,7 +24,8 @@ class App extends Component {
 
   validate(data, header, row) {
     // console.log(data, header, row);
-    if(data[header] === "Female") return false;
+    // if(data[header] === "Female") return false;
+    return VALIDATE_SHIPPING[header] ? VALIDATE_SHIPPING[header](data) : true;
 
     return true;
   }
