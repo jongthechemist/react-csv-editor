@@ -23,7 +23,6 @@ class CSVLoader extends React.Component {
   }
 
   render() {
-
     return (
       <input type="file" onChange={this.fileChangedHandler} accept=".csv"/>
     )

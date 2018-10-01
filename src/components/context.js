@@ -1,7 +1,8 @@
 import React from 'react';
 
 const EditorContext = React.createContext({
-  onValueChanged: () => {}
+  onValueChanged: () => {},
+  validate: () => {}
 });
 
 export default EditorContext;

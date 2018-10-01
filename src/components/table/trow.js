@@ -1,25 +1,35 @@
-import React from 'react';
-import _ from 'lodash';
-import TData from './tdata';
+import React from 'react'
+import _ from 'lodash'
+import TData from './tdata'
+import PropTypes from 'prop-types'
 
-class TRow extends React.PureComponent {
+const TRow = ({headers, rowNumber, data}) => {
+  return (
+    <tr>
+      <td>{rowNumber}</td>
+      {
+        headers.map(header=><TData rowNumber={rowNumber} key={header} header={header} data={data} value={_.get(data, header)}/>)
+      }
+    </tr>
+  )
+}
 
-  // shouldComponentUpdate(nextProps) {
-  //   return nextProps.data !== this.props.data;
-  // }
+class TRowContainer extends React.Component {
+
+  shouldComponentUpdate(nextProps) {
+    return nextProps.data !== this.props.data
+  }
 
   render() {
-    const {data, headers, rowNumber} = this.props;
-    return (
-      <tr>
-        <td>{rowNumber}</td>
-        {
-          headers.map(header=><TData rowNumber={rowNumber} header={header} key={header} value={_.get(data, header)}/>)
-        }
-      </tr>
-    )
+    return (<TRow {...this.props}/>)
   }
 
 }
 
-export default TRow;
+TRowContainer.propTypes = {
+  data: PropTypes.object,
+  headers: PropTypes.arrayOf(PropTypes.string),
+  rowNumber: PropTypes.number
+}
+
+export default TRowContainer

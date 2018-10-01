@@ -1,30 +1,56 @@
-import React from 'react';
-import CSVLoader from './CSVLoader';
-import CSVTable from './table';
-import csvjson from 'csvjson';
-import { getChildWithType } from '../helpers/children';
-import EditorContext from './context';
+import React from 'react'
+import CSVLoader from './CSVLoader'
+import CSVTable from './table'
+import csvjson from 'csvjson'
+import PropTypes from 'prop-types'
+import { getChildWithType } from '../helpers/children'
+import EditorContext from './context'
+import { validateData, getInvalidData } from './validation'
 
 class CSVEditor extends React.Component {
 
   constructor(props) {
-    super(props);
+    super(props)
     this.state = {
       csv: '',
       json: [],
       headers: []
     }
-    this.fileLoadedHandler = this.fileLoadedHandler.bind(this);
-    this.valueChangedHandler = this.valueChangedHandler.bind(this);
+    this.fileLoadedHandler = this.fileLoadedHandler.bind(this)
+    this.valueChangedHandler = this.valueChangedHandler.bind(this)
   }
 
-  valueChangedHandler(header, rowNumber, value) {
-    console.log(header, rowNumber, value);
+  componentDidMount() {
+    this.props.csv && this.fileLoadedHandler(this.props.csv)
+  }
+
+  componentDidUpdate(prevProps) {
+    if(prevProps.csv !== this.props.csv) {
+      this.fileLoadedHandler(this.props.csv)
+    }
+  }
+
+  fileLoadedHandler(csv) {
+    let json = csvjson.toObject(csv)
+    let headers = json[0] ? Object.keys(json[0]) : []
+    json = json.map((data)=>validateData(data, this.props.validate))
+    this.setState({
+      csv: csv,
+      headers: headers,
+      json: json
+    })
+    this.checkNotifyInvalidData(json)
+  }
+
+  valueChangedHandler(header, row, value) {
     this.setState((prevState)=>{
+      
       let newJson = prevState.json.map((data, index) => {
-        if(index === rowNumber - 1) return Object.assign({}, data, { [header] : value});
-        return data;
-      });
+        if(index === row) return validateData(Object.assign({}, data, { [header] : value}), this.props.validate)
+        return data
+      })
+      this.checkNotifyInvalidData(newJson)
+
       return {
         json: newJson,
         csv: csvjson.toCSV(newJson)
@@ -32,28 +58,19 @@ class CSVEditor extends React.Component {
     })
   }
 
-  fileLoadedHandler(csv) {
-    let json = csvjson.toObject(csv);
-    let headers = json[0] ? Object.keys(json[0]) : [];
-    this.setState({
-      csv: csv,
-      headers: headers
-    })
-    this.incrementalLoad(json);
-  }
+  checkNotifyInvalidData(json) {
+    const { onInvalidInput, onValidInput } = this.props 
+    const { data, headers, index } = getInvalidData(json)
 
-  incrementalLoad(json) {
-    setTimeout(() => {
-      let hasMore = this.state.json.length + 1 < json.length;
-      this.setState((prev) => ({
-        json: [...prev.json, ...json.slice(prev.json.length, prev.json.length+10)] 
-      }));
-      if (hasMore) this.incrementalLoad(json);
-    }, 0);
+    if(data) {
+      onInvalidInput && onInvalidInput(data, headers[0], index)
+    } else {
+      onValidInput && onValidInput()
+    }
   }
 
   setupLoader(children) {
-    let loader = getChildWithType(children, CSVLoader, true);
+    let loader = getChildWithType(children, CSVLoader, true)
     return React.cloneElement(loader, {
       onFileLoaded: this.fileLoadedHandler
     })
@@ -61,22 +78,28 @@ class CSVEditor extends React.Component {
 
   render() {
 
-    const { children } = this.props; 
-    const { json, headers } = this.state;
+    const { children, validate, onInvalidInput } = this.props 
+    const { json, headers } = this.state
     
-    let loader = this.setupLoader(children);
+    let loader = this.setupLoader(children)
 
     return (
       <div>
         {loader}
-        <EditorContext.Provider value={{ onValueChanged: this.valueChangedHandler }}>
+        <EditorContext.Provider value={{ onValueChanged: this.valueChangedHandler, validate, onInvalidInput }}>
           <CSVTable jsonData={json} headers={headers}/>
         </EditorContext.Provider>
       </div>
     )
-
   }
 
 }
 
-export default CSVEditor;
+CSVEditor.propTypes = {
+  validate: PropTypes.func,
+  onInvalidInput: PropTypes.func,
+  onValidInput: PropTypes.func,
+  onCsvChanged: PropTypes.func
+}
+
+export default CSVEditor

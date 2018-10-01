@@ -1,22 +1,22 @@
-import React from 'react';
+import React from 'react'
 
-class TInput extends React.PureComponent {
+class TInput extends React.Component {
 
   changeHandler(event) {
-    this.ref.value = event.target.value;
+    this.ref.value = event.target.value
   }
 
   blurHandler(event) {
-    const { onChange, value } = this.props;
+    const { onChange, value } = this.props
     if(this.ref.value !== value && onChange) {
-      onChange(event.target.value);
+      onChange(event.target.value)
     }
   }
 
   componentDidMount() {
-    const { value } = this.props;
-    this.ref.value = value;
-    this.ref && this.ref.focus();
+    const { value } = this.props
+    this.ref.value = value
+    this.ref && this.ref.focus()
   }
   
   render() {
@@ -27,4 +27,4 @@ class TInput extends React.PureComponent {
 
 }
 
-export default TInput;
+export default TInput
